@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>COVID-19 Narrative Visualization</title>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://d3js.org/topojson.v1.min.js"></script>
+        <style>
+            body {
+                font-family: 'Times New Roman', Times, serif;
+                font-size: 14px;
+                line-height: 1.42857143;
+                color: #333;
+            }
+            
+            .chart-container {
+                display: none;
+                padding: 20px;
+                border: 1px solid #ddd;
+                margin-bottom: 20px;
+            }
+            
+            .active {
+                display: block;
+                margin-top: 20px;
+            }
+
+            .state {
+                fill: lightgray;
+                stroke: white;
+                stroke-width: 1;
+            }
+
+            .state:hover {
+                fill: orange;
+            }
+
+            .tooltip {
+                position: absolute;
+                visibility: hidden;
+                text-align: center;
+                width: 100px;
+                height: auto;
+                padding: 2px;
+                background-color: white;
+                padding: 5px;
+                border: 1px solid black;
+                border-radius: 8px;
+            }
+
+            .legend {
+                font-size: 12px;
+            }
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 5px;
+            }
+
+            .legend-color {
+                width: 20px;
+                height: 20px;
+                margin-right: 5px;
+            }   
+
+            .button_style {
+                margin-top: 20px;
+                text-align: center;
+            }
+            
+            .button_style button {
+                padding: 10px 20px;
+                margin: 0 10px;
+                cursor: pointer;
+            }
+
+            h2 {
+                font-size: 30px;
+                margin-top: 20px;
+                margin-bottom: 10px;
+                font-family: inherit;
+                font-weight: 500;
+                line-height: 1.1;
+                color: inherit;
+            }
+
+            .txt {
+                font-size: 1.3em;
+            }
+
+            ul {
+                list-style-type: square;
+                margin-top: 0;
+                margin-bottom: 10px;
+            }
+
+            .mt-10 {
+                margin-top: 10px;
+            }
+
+            .mt-30 {
+                margin-top: 30px;
+            }
+            
+            .chart {
+                font: 10px sans-serif;
+            }
+        
+            .line {
+                fill: none;
+                stroke-width: 2px;
+            }
+
+            .axis path, .axis line {
+                fill: none;
+                shape-rendering: crispEdges;
+            }
+            
+            .dropdown {
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="scene1" class="chart-container active">
+            <h1>COVID-19 Slideshow Narrative Visualization</h1>
+            <div class="intro">
+                <p>Welcome to the COVID-19 data visualization project. The narrative visualization is utilized to convey the progression of COVID-19 throughout the years 2020-2023 and to highlight key trends during that time period.</p>
+            </div>
+            <div class="feature">
+                <h2>Key Features (3 Scenes):</h2>
+                <ul>
+                    <li>Interactive United States map showing case distribution.</li>
+                    <li>Horizontal bar charts showcasing highly infectious states through 2020-2023.</li>
+                    <li>State-wise time series charts displaying the evolution of COVID-19 deaths and cases.</li>
+                </ul>
+            </div>
+            <div class="button_style">
+                <button onclick="showScene(2)">Next</button>
+            </div>
+            <div class="link-container">
+                <a href="https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv">Link to COVID-19 Data</a>
+            </div>
+        </div>
+        <div id="scene2" class="chart-container">
+            <h2>How does the total confirmed cases for each state look like?</h2>
+            <div>
+                <ul>
+                    <li class="txt mt-10">The number of cases of COVID-19 during the pandemic was highly correlated to the population of the state</li>
+                    <li class="txt mt-10">Along with a high population density, a state being an attractive holiday spot made the spread of COVID-19 even more rapid</li>
+                    <p class="txt mt-30"> Try hovering over some states to see what their final COVID-19 cases count was:</p>
+                </ul>
+                <p><em>The last entry date of the data is 2023-03-23. No additional data was recorded past this date</em></p>
+            </div>
+            <div class="button_style">    
+                <button onclick="showScene(1)">Prev</button>
+                <button onclick="showScene(3)">Next</button>
+            </div>
+        </div>
+        <div id="scene3" class="chart-container">
+            <h2>Which of the states were the most infectious through the 4 years of the pandemic?</h2>
+            <div>
+                <ul>
+                    <li class="txt mt-10"></li>
+                    <li class="txt mt-10">California, Texas, Florida, New York, Illinois remain at the top through the 4 years which makes sense as they are tourist or travel hotspots</li>
+                    <p class="txt mt-30">Instructions: Use the given buttons to observe changes in the cases count as well as the states in the chart</p>
+                </ul>
+                <p><em><b>Note: Hovering over the bars will give annotations on the exact cases count in the bottom left corner</b></em></p>
+            </div>
+            <div id="chartButton">
+                <button id="clickMe" value="0">2020</button>
+                <button id="clickMe" value="1">2021</button>
+                <button id="clickMe" value="2">2022</button>
+                <button id="clickMe" value="3">2023</button>
+            </div>
+            <div class="chart"></div>
+            <div class="button_style">
+                <button onclick="showScene(2)">Prev</button>
+                <button onclick="showScene(4)">Next</button>
+            </div>
+        </div>
+        <div id="scene4" class="chart-container">
+            <h2>Growth of COVID-19 in each state from 2020 to 2023</h2>
+            <div>
+                <ul>
+                    <li class="txt mt-10">Looking at any state line graph, it is discernable that peaks in cases as well as deaths happen during vacation (Summer or Winter holidays)</li>
+                    <li class="txt mt-10">About a 1/4 of the way into 2022, the increases in cases slowed down due to the nationwide release of the vaccine</li>
+                    <li class="txt mt-10">Outbreaks also ceased due to the lockdown of the nation which additionally helped decrease the growth of COVID-19</li>
+                    <p class="txt mt-30">Use the dropdown menu to see the different time-wise line graphs for each of the states:</p>
+                </ul>
+                <p><em><b>NOTE: The red line in the graph signifies Deaths. The blue line in the graph signifies Cases. The black point at the end of the graph are the final cases and deaths recorded for the state</b></em></p>
+            </div>
+            <div class="dropdown">
+                <label for="stateSelect">Select State:</label>
+                <select id="stateSelect"></select>
+            </div>
+            <div class="chart"></div>
+            <div class="button_style">    
+                <button onclick="showScene(3)">Prev</button>
+                <button onclick="showScene(1)">First</button>
+            </div>
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>
